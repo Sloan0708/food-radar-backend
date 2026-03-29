@@ -31,11 +31,12 @@ def get_real_world_data(lat: float = 24.6877, lng: float = 120.9081):
     
     try:
         # 1. 呼叫 Google 抓取附近的餐廳 (半徑 1500 公尺)
-        search_url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=1500&type=restaurant&language=zh-TW&key={GOOGLE_API_KEY}"
+        search_url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&rankby=distance&type=restaurant&language=zh-TW&key={GOOGLE_API_KEY}"
         search_res = requests.get(search_url).json()
         
         # 只取前 5 家店，避免手機等太久
-        places = search_res.get("results", [])[:5]
+        places = search_res.get("results", [])[:10]
+        print("🔍 Google 原始回傳的前 10 家店：", [p.get("name") for p in places])
         
         for place in places:
             place_id = place.get("place_id")
