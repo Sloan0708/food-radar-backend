@@ -26,8 +26,25 @@ def analyze_real_score(reviews: list) -> float:
     return max(10, score) / 100.0
 
 @app.get("/api/restaurants")
-def get_real_world_data(lat: float = 24.6877, lng: float = 120.9081):
+def get_real_world_data(lat: float = 24.6877, lng: float = 120.9081, keyword: str = None):
+    # 🌟 關鍵字覆蓋邏輯
+    if keyword:
+        print(f"收到關鍵字：{keyword}，正在呼叫 Google 轉換座標...")
+        # 這裡會自動把你的 GOOGLE_API_KEY 塞進網址裡
+        geo_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={keyword}&key={GOOGLE_API_KEY}"
+        geo_response = requests.get(geo_url).json()
+        
+        if geo_response.get('status') == 'OK':
+            location = geo_response['results'][0]['geometry']['location']
+            # 無情地用新座標覆蓋掉手機傳來的住家 GPS！
+            lat = location['lat']
+            lng = location['lng']
+            print(f"🗺️ 成功將 '{keyword}' 轉換為新座標: {lat}, {lng}")
+        else:
+            print("❌ 座標轉換失敗，將退回使用 GPS 原座標")
+
     results = []
+
     
     try:
         # 1. 呼叫 Google 抓取附近的餐廳 (半徑 1500 公尺)
